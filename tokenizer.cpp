@@ -92,6 +92,9 @@ void handle_text(char* buf, int id) {
       }
       s++;
    }
+   add_tokens(buf,id);
+   while(buf<s)
+      *(buf++)=' ';
 }
 void handle_infobox(char* buf,int id) {
    size_t s = 0;
@@ -111,6 +114,7 @@ void handle_infobox(char* buf,int id) {
       *(--p)='\0';
       //hadndle text wipes it clean
       handle_text(buf+s,id);
+      *p = ' ';
    }
 }
 void init() {
@@ -132,6 +136,7 @@ int main() {
       read_val();
       handle_infobox(buf,INFOBOX(id*8));
       printf("Text:\n");
+      handle_text(buf,id*8);
 //      printf("%s\n",buf);
       //add_tokens(buf,id);
    }

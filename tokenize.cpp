@@ -24,7 +24,7 @@ char *symbol_strip(char *s) {
       l++;
    }
    l--;
-   while(l>=s && !isalnum(*l) && *l != '+' && *l != '$' && *l != '%' && *l != '\'') {
+   while(l>=s && !isalnum(*l) && *l != '+' && *l != '#' && *l != '$' && *l != '%') {
       l--;
    }
    l++;
@@ -33,7 +33,7 @@ char *symbol_strip(char *s) {
 }
 char *tokenize(char *str) {
    static char *saveptr;
-   char *ret = strtok_r(str," \t\v\n:|",&saveptr);
+   char *ret = strtok_r(str," \t\v\n:|{}[]<>&@=;/\"",&saveptr);
    if(ret) {
       ret = symbol_strip(ret);
       ret[stem(ret,0,strlen(ret)-1)+1]=0;
