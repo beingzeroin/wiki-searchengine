@@ -1,4 +1,4 @@
-CCFLAGS = -g -Wall
+CCFLAGS = -O2 -Wall
 all : xmlparse2 tokenizer
 
 xmlparse2 : xmlparse2.o
