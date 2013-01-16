@@ -16,12 +16,22 @@ void enable_stop_words() {
 }
 
 char *symbol_strip(char *s) {
+   char *start = s;
+   char *putp = s;
+   while(*s) {
+      if(isalnum(*s))
+	 *(putp++) = tolower(*s);
+      s++;
+   }
+   *putp='\0';
+   return start; 
+   /*
    char *l = s;
    while(*l != 0) {
       *l = tolower(*l);
       if(l==s && !isalnum(*l))
 	 s++;
-      l++;
+     l++;
    }
    l--;
    while(l>=s && !isalnum(*l)) {
@@ -30,6 +40,7 @@ char *symbol_strip(char *s) {
    l++;
    *l=0;
    return s;
+   */
 }
 char *tokenize(char *str) {
    static char *saveptr;
