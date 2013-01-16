@@ -22,7 +22,9 @@ char *symbol_strip(char *s) {
 char *tokenize(char *str) {
    static char *saveptr;
    char *ret = strtok_r(str," \t\v\n:|",&saveptr);
-   if(ret)
+   if(ret) {
+      ret = symbol_strip(ret);
       ret[stem(ret,0,strlen(ret)-1)+1]=0;
+   }
    return ret;
 }

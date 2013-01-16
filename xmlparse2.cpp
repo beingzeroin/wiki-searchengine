@@ -32,8 +32,8 @@ int main() {
 	 title = root->first_node("title");
 	 id = root->first_node("id");
 	 text = root->first_node("revision")->first_node("text");
-	 printf("%lu %s\n",title->value_size(), title->value());
 	 printf("%lu %s\n",id->value_size(), id->value());
+	 printf("%lu %s\n",title->value_size(), title->value());
 	 printf("%lu %s\n",text->value_size(), text->value());
 	 b += match1.rm_eo+1;
       } else {

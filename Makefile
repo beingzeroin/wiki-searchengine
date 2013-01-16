@@ -17,6 +17,9 @@ stem.o : stem.c
 tokenize.o : tokenize.cpp
 	g++ -c $(CCFLAGS) tokenize.cpp
 
+trie.o : trie.cpp
+	g++ -c $(CCFLAGS) trie.cpp
+
 
 clean:
 	rm -rf xmlparse2 tokenizer *.o

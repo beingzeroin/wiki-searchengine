@@ -19,24 +19,29 @@ bool read_val() {
    buf[r]=0;
    return true;
 }
-void extract_tokens() {
-   char *s = tokenize(buf);
+//id expected to have 3-bit data of title/category/outlink
+void add_tokens(char *inp,int id) {
+   char *s = tokenize(inp);
    while(s) {
-      printf("%s\n",s);
+      if(*s)
+	 printf("%d:%s\n",id,s);
       s = tokenize(NULL);
    }
+}
+void init() {
 }
 int main() {
    buf = new char[bufsz+5];
    while(true) {
       if(!read_val())
 	 break;
-      printf("Title:\n");extract_tokens();
-      read_val();
       int id;
       sscanf(buf,"%d",&id);
       printf("Id: %d\n",id);
+
       read_val();
-      printf("Text:\n");extract_tokens();
+      printf("Title:\n");add_tokens(buf,id);
+      read_val();
+      printf("Text:\n");add_tokens(buf,id);
    }
 }
