@@ -1,6 +1,6 @@
 /*
  * Stemmer code from :
- * http://www.cs.cmu.edu/~callan/Teaching/porter.c
+ * http://tartarus.org/~martin/PorterStemmer/index.html
  */
 /* This is the Porter stemming algorithm, coded up in ANSI C by the
    author. It may be be regarded as cononical, in that it follows the
