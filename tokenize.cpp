@@ -42,14 +42,15 @@ char *symbol_strip(char *s) {
    return s;
    */
 }
-char *tokenize(char *str) {
+char *tokenize(char *str,int &sz) {
    static char *saveptr;
    char *ret = strtok_r(str," \t\v\n:;|{}[]()<>`~!@#$%^&*-+=\\/\"",&saveptr);
    if(ret) {
       ret = symbol_strip(ret);
       ret[stem(ret,0,strlen(ret)-1)+1]=0;
       ret = symbol_strip(ret);
-      if(trie.find(ret,strlen(ret)))
+      sz = strlen(ret);
+      if(trie.find(ret,sz))
 	 *ret=0;
    }
    return ret;

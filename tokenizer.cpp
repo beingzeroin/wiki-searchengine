@@ -1,7 +1,11 @@
 #include <cstdio>
 #include <cstring>
+#include <vector>
+#include <string>
+using namespace std;
 #include <regex.h>
 #include "tokenize.h"
+#include "fasttrie.h"
 
 #define INFOBOX(x) ((x)|4)
 #define OUTLINK(x) ((x)|1)
@@ -24,6 +28,11 @@ char DOCTYPE[][20] ={
 // 2 - title
 // 3 - category
 
+typedef unsigned long long ull;
+jdk_fasttree<ull*,128,char> dict;
+long long no_words = 0;
+vector<string> words;
+
 int bufsz = 102400;
 char *buf; 
 void resize_buf(int s) {
@@ -44,11 +53,23 @@ bool read_val() {
 }
 //id expected to have 3-bit data of title/category/outlink
 void add_tokens(char *inp,int id) {
-   char *s = tokenize(inp);
+   int sz;
+   char *s = tokenize(inp,sz);
    while(s) {
       if(*s)
-	 printf("%d:%s:%s\n",id,DOCTYPE[id&7],s);
-      s = tokenize(NULL);
+      {
+	 ull *v = dict.find(s,sz);
+	 if(!v) {
+	    v = new ull(0);
+	    dict.add(s,sz,v);
+	    no_words++;
+	    words.push_back(string(s));
+	 }
+	 (*v)++;
+	 //printf("%d:%s:%s\n",id,DOCTYPE[id&7],s);
+      }
+      s = tokenize(NULL,sz);
+      
    }
 }
 regex_t infobox,outlink;
@@ -124,20 +145,28 @@ void init() {
 int main() {
    init();
    buf = new char[bufsz+5];
+   int cnt = 0;
    while(true) {
       if(!read_val())
 	 break;
       int id;
       sscanf(buf,"%d",&id);
-      printf("Id: %d\n",id);
+//      printf("Id: %d\n",id);
 
       read_val();
-      printf("Title:\n");add_tokens(buf,TITLE(id*8));
+//      printf("Title:\n");add_tokens(buf,TITLE(id*8));
       read_val();
       handle_infobox(buf,INFOBOX(id*8));
-      printf("Text:\n");
+//      printf("Text:\n");
       handle_text(buf,id*8);
 //      printf("%s\n",buf);
       //add_tokens(buf,id);
+      cnt++;
+      if(cnt%1000==0) {
+	 printf("%d Documents Parsed %lld unique words\n",cnt,no_words);
+      }
+   }
+   for(size_t i = 0; i < words.size(); i++) {
+      printf("%s %llu\n",words[i].c_str(), *dict.find(words[i].c_str(),words[i].size()));
    }
 }
