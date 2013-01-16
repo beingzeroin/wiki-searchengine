@@ -15,7 +15,7 @@ int main() {
    regcomp(&pageclose,"</page>",0);
 
    int bufsz = 102400;
-   char *buf = new char[bufsz];
+   char *buf = new char[bufsz+5];
    int s = fread(buf,1,bufsz,stdin);
    buf[s]=0;
    int b = 0;
@@ -39,7 +39,7 @@ int main() {
       } else {
 	 if(b*2 < bufsz) {
 	    bufsz *= 2;
-	    buf = (char*) realloc(buf,bufsz);
+	    buf = (char*) realloc(buf,bufsz+5);
 	 } 
 
 	 for(int i = b; i < s; i++)

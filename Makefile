@@ -1,10 +1,17 @@
 CCFLAGS = -g -Wall
-all : index
-index : index.o
-	g++ $(CCFLAGS) index.o -o index
+all : xmlparse2 tokenizer
 
-index.o : index.cpp
-	g++ -c $(CCFLAGS) index.cpp
+xmlparse2 : xmlparse2.o
+	g++ $(CCFLAGS) xmlparse2.o -o xmlparse2
+xmlparse2.o : xmlparse2.cpp
+	g++ -c $(CCFLAGS) xmlparse2.cpp
+
+tokenizer : tokenizer.o
+	g++ $(CCFLAGS) tokenizer.o -o tokenizer
+tokenizer.o : tokenizer.cpp
+	g++ -c $(CCFLAGS) tokenizer.cpp
+
+
 
 clean:
-	rm -rf index *.o
+	rm -rf xmlparse2 tokenizer *.o
