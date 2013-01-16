@@ -28,9 +28,13 @@ int main() {
 	 xml_document<char> doc;
 	 doc.parse<0>(buf+b+match2.rm_so);
 	 xml_node<char> *root = doc.first_node();
-	 printf("Title: %s\n",root->first_node("title")->value());
-	 printf("Id: %s\n",root->first_node("id")->value());
-	 printf("Value: %s\n",root->first_node("revision")->first_node("text")->value());
+	 xml_node<char> *title,*id,*text;
+	 title = root->first_node("title");
+	 id = root->first_node("id");
+	 text = root->first_node("revision")->first_node("text");
+	 printf("%lu %s\n",title->value_size(), title->value());
+	 printf("%lu %s\n",id->value_size(), id->value());
+	 printf("%lu %s\n",text->value_size(), text->value());
 	 b += match1.rm_eo+1;
       } else {
 	 if(b*2 < bufsz) {
