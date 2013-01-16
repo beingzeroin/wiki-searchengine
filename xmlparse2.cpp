@@ -1,8 +1,12 @@
+#include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <sys/types.h>
 #include <regex.h>
+#include "rapidxml/rapidxml.hpp"
+using rapidxml::xml_document;
+using rapidxml::xml_node;
 int main() {
 
    regex_t page,pageclose;
@@ -15,11 +19,18 @@ int main() {
    int s = fread(buf,1,bufsz,stdin);
    buf[s]=0;
    int b = 0;
+   int cnt = 0;
    while(true) {
       if(!regexec(&pageclose,buf+b,1,&match1,0)) {
 	 regexec(&page,buf+b,1,&match2,0);
+	 cnt++;
 	 buf[b+match1.rm_eo]=0;
-	 printf("%s\n########\n",buf+b+match2.rm_so);
+	 xml_document<char> doc;
+	 doc.parse<0>(buf+b+match2.rm_so);
+	 xml_node<char> *root = doc.first_node();
+	 printf("Title: %s\n",root->first_node("title")->value());
+	 printf("Id: %s\n",root->first_node("id")->value());
+	 printf("Value: %s\n",root->first_node("revision")->first_node("text")->value());
 	 b += match1.rm_eo+1;
       } else {
 	 if(b*2 < bufsz) {
@@ -35,7 +46,7 @@ int main() {
 	 int r = fread(buf+s,1,bufsz-s,stdin);
 	 if(r==0)
 	    return 0;
-	 s = r;
+	 s += r;
 	 buf[s]=0;
       }
    }
