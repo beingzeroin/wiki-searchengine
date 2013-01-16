@@ -4,4 +4,5 @@
 // similar usage as strtok
 char *tokenize(char *str);
 char *symbol_strip(char *s);
+void enable_stop_words();
 #endif

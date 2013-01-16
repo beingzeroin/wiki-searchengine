@@ -1,6 +1,7 @@
 #include <cstdio>
 #include "tokenize.h"
 
+
 int bufsz = 102400;
 char *buf; 
 void resize_buf(int s) {
@@ -28,6 +29,7 @@ void add_tokens(char *inp,int id) {
       s = tokenize(NULL);
    }
 }
+
 void init() {
 }
 int main() {
