@@ -19,12 +19,12 @@ char *symbol_strip(char *s) {
    char *l = s;
    while(*l != 0) {
       *l = tolower(*l);
-      if(l==s && !isalnum(*l) && *l != '.' && *l!='$' && *l!='+' && *l!='-')
+      if(l==s && !isalnum(*l))
 	 s++;
       l++;
    }
    l--;
-   while(l>=s && !isalnum(*l) && *l != '+' && *l != '#' && *l != '$' && *l != '%') {
+   while(l>=s && !isalnum(*l)) {
       l--;
    }
    l++;
