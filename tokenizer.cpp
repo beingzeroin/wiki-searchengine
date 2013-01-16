@@ -1,4 +1,5 @@
 #include <cstdio>
+#include "tokenize.h"
 
 int bufsz = 102400;
 char *buf; 
@@ -18,15 +19,24 @@ bool read_val() {
    buf[r]=0;
    return true;
 }
+void extract_tokens() {
+   char *s = tokenize(buf);
+   while(s) {
+      printf("%s\n",s);
+      s = tokenize(NULL);
+   }
+}
 int main() {
    buf = new char[bufsz+5];
    while(true) {
       if(!read_val())
 	 break;
-      printf("Title: %s\n",buf);
+      printf("Title:\n");extract_tokens();
       read_val();
-      printf("Id: %s\n",buf);
+      int id;
+      sscanf(buf,"%d",&id);
+      printf("Id: %d\n",id);
       read_val();
-      printf("Text: %s\n",buf);
+      printf("Text:\n");extract_tokens();
    }
 }
