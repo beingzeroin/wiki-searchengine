@@ -2,12 +2,9 @@
 
 #ifndef PHINFINITY_TRIE_H
 #define PHINFINITY_TRIE_H
-inline int conv(char c) {
-   if(c<'a')
-      return c-'0';
-   else
-      return c-'a'+10;
-}
+#include <cstdio>
+extern int convdict[256];
+void ptrie_init();
 template<typename value>
 struct ptrie {
    ptrie<value> *root[36];
@@ -26,9 +23,9 @@ struct ptrie {
       ptrie<value> *at =this;
       int c;
       while(*s) {
-	 c = conv(*(s++));
-	 if(root[c] == NULL)root[c] = new ptrie<value>();
-	 at = root[c];
+	 c = convdict[(int)*(s++)];
+	 if(at->root[c] == NULL)at->root[c] = new ptrie<value>();
+	 at = at->root[c];
       }
       at->v = val;
    }
@@ -38,10 +35,29 @@ struct ptrie {
       ptrie *at =this;
       int c;
       while(*s) {
-	 c = conv(*(s++));
-	 if(root[c] == NULL)return zer;
-	 at = root[c];
+	 c = convdict[(int)*(s++)];
+	 if(at->root[c] == NULL)return zer;
+	 at = at->root[c];
       }
+      return at->v;
+   }
+};
+struct ptrie_set {
+   ptrie<int> trie;
+   int cnt;
+   ptrie_set() {
+      cnt = 0;
+   }
+   int el(const char* s) {
+      ptrie<int> *at = &trie;
+      int c;
+      while(*s) {
+	 c = convdict[(int)*(s++)];
+	 if(at->root[c] == NULL)at->root[c] = new ptrie<int>();
+	 at = at->root[c];
+      }
+      if(at->v==0)
+	 at->v = ++cnt;
       return at->v;
    }
 };
