@@ -178,8 +178,9 @@ int main() {
       //add_tokens(buf,id);
       cnt++;
       if(cnt%1000==0)
-	 printf("%d Documents Parsed %lu unique words\n",cnt,dict2.size());
+	 fprintf(stderr,"%d Documents Parsed %lu unique words\n",cnt,dict2.size());
    }
    for(map<string,ull>::iterator it = dict2.begin(); it != dict2.end(); it++)
       printf("%s %llu\n",it->first.c_str(),it->second);
+   printf("Total number of words : %lu\n",dict2.size());
 }
