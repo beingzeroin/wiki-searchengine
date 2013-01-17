@@ -1,11 +1,12 @@
 #include <cstdio>
+#include <map>
 #include <cstring>
 #include <vector>
 #include <string>
 using namespace std;
 #include <regex.h>
 #include "tokenize.h"
-#include "fasttrie.h"
+#include "trie.h"
 
 #define INFOBOX(x) ((x)|4)
 #define OUTLINK(x) ((x)|1)
@@ -29,7 +30,7 @@ char DOCTYPE[][20] ={
 // 3 - category
 
 typedef unsigned long long ull;
-jdk_fasttree<ull*,128,char> dict;
+map<string,ull> dict2;
 long long no_words = 0;
 vector<string> words;
 
@@ -40,6 +41,7 @@ void resize_buf(int s) {
       bufsz*=2;
    delete [] buf;
    buf = new char[bufsz+5];
+   fprintf(stderr,"NOTE: Resized to %d\n",bufsz);
 }
 bool read_val() {
    int cnt;
@@ -58,14 +60,19 @@ void add_tokens(char *inp,int id) {
    while(s) {
       if(*s)
       {
-	 ull *v = dict.find(s,sz);
-	 if(!v) {
+	 dict2[string(s)]++;
+	 //ull *v = dict.find(s,sz);
+	 /*
+	 if(v==NULL) {
 	    v = new ull(0);
 	    dict.add(s,sz,v);
 	    no_words++;
+	    if(no_words%10000==0)
+	       printf("%llu words so far\n",no_words);
 	    words.push_back(string(s));
 	 }
 	 (*v)++;
+	 */
 	 //printf("%d:%s:%s\n",id,DOCTYPE[id&7],s);
       }
       s = tokenize(NULL,sz);
@@ -126,9 +133,17 @@ void handle_infobox(char* buf,int id) {
       s+=pmatch[0].rm_so;
       int c = 2;
       char *p = buf+s+2;
+      int nl = 0;
       while(c!=0) {
 	 if(*p=='{')c++;
 	 if(*p=='}')c--;
+	 if(*p=='\n')nl=1;
+	 if(nl && *p=='|')nl=0;
+	 if(nl && !isspace(*p)) {
+	    p--;
+	    break; //break if infobox doesn't start with '|'
+	 }
+
 	 p++;
       }
       *(--p)=' ';
@@ -162,11 +177,9 @@ int main() {
 //      printf("%s\n",buf);
       //add_tokens(buf,id);
       cnt++;
-      if(cnt%1000==0) {
-	 printf("%d Documents Parsed %lld unique words\n",cnt,no_words);
-      }
+      if(cnt%1000==0)
+	 printf("%d Documents Parsed %lu unique words\n",cnt,dict2.size());
    }
-   for(size_t i = 0; i < words.size(); i++) {
-      printf("%s %llu\n",words[i].c_str(), *dict.find(words[i].c_str(),words[i].size()));
-   }
+   for(map<string,ull>::iterator it = dict2.begin(); it != dict2.end(); it++)
+      printf("%s %llu\n",it->first.c_str(),it->second);
 }
