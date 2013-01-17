@@ -126,15 +126,13 @@ void handle_text(char* buf, int id) {
 }
 void handle_infobox(char* buf,int id) {
    size_t s = 0;
-   while(true) {
-      int status = regexec(&infobox,buf+s,1,pmatch,0);
-      if(status)
-	 break;
+   int status = regexec(&infobox,buf+s,1,pmatch,0);
+   if(!status){
       s+=pmatch[0].rm_so;
       int c = 2;
       char *p = buf+s+2;
       int nl = 0;
-      while(c!=0) {
+      while(c!=0 && *p) {
 	 if(*p=='{')c++;
 	 if(*p=='}')c--;
 	 if(*p=='\n')nl=1;
@@ -145,6 +143,9 @@ void handle_infobox(char* buf,int id) {
 	 }
 
 	 p++;
+      }
+      if(*p==0){
+	 printf("Infobox for %d is screwed...\n",id);
       }
       *(--p)=' ';
       *(--p)='\0';
