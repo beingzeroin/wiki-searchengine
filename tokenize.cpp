@@ -45,7 +45,7 @@ void enable_stop_words() {
 
 char *tokenize(char *str,int &sz) {
    static char *saveptr;
-   char *ret = strtok_r(str," \t\v\n:;|{}[]()<>`~!@#$%^&*-+=\\/\"",&saveptr);
+   char *ret = strtok_r(str," \t\v\n:;|{}[]()<>`~!@#$%^&*-+=\\/\"_",&saveptr);
    if(ret) {
       symbol_strip(ret);
       ret[stem(ret,0,strlen(ret)-1)+1]=0;

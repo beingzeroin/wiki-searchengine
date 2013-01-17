@@ -35,6 +35,7 @@ ptrie_set dict;
 int no_words = 0;
 vector<string> words;
 vector<int> tok_freq;
+vector<vector<pair<int,int> > > inv_index;
 
 int bufsz = 102400;
 char *buf; 
@@ -68,8 +69,23 @@ void add_tokens(char *inp,int id) {
 	    no_words++;
 	    words.push_back(string(s));
 	    tok_freq.push_back(0);
+	    inv_index.resize(no_words);
 	 }
-	 tok_freq[tok_id-1]++;
+	 tok_id--;
+	 tok_freq[tok_id]++;
+	 int c = 6;
+	 bool done = false;
+	 for(auto it = inv_index[tok_id].rbegin(); c>0 && it != inv_index[tok_id].rend(); it++) {
+	    c--;
+	    if(it->first==id)
+	    {
+	       it->second++;
+	       done = true;
+	    }
+	 }
+	 if(!done) {
+	    inv_index[tok_id].push_back(make_pair(id,1));
+	 }
 	 //ull *v = dict.find(s,sz);
 	 /*
 	 if(v==NULL) {
@@ -179,7 +195,8 @@ int main() {
 //      printf("Id: %d\n",id);
 
       read_val();
-//      printf("Title:\n");add_tokens(buf,TITLE(id*8));
+      //printf("Title:\n");
+      add_tokens(buf,TITLE(id*8));
       read_val();
       handle_infobox(buf,INFOBOX(id*8));
 //      printf("Text:\n");
