@@ -1,4 +1,4 @@
-CCFLAGS = -O2 -Wall
+CCFLAGS = -O2 -std=c++11 -Wall
 all : xmlparse2 tokenizer
 
 xmlparse2 : xmlparse2.o

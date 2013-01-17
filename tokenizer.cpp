@@ -30,9 +30,11 @@ char DOCTYPE[][20] ={
 // 3 - category
 
 typedef unsigned long long ull;
-map<string,ull> dict2;
-long long no_words = 0;
+//map<string,ull> dict2;
+ptrie_set dict;
+int no_words = 0;
 vector<string> words;
+vector<int> tok_freq;
 
 int bufsz = 102400;
 char *buf; 
@@ -60,7 +62,14 @@ void add_tokens(char *inp,int id) {
    while(s) {
       if(*s)
       {
-	 dict2[string(s)]++;
+	 //dict2[string(s)]++;
+	 int tok_id = dict.el(s);
+	 if(tok_id>no_words) {
+	    no_words++;
+	    words.push_back(string(s));
+	    tok_freq.push_back(0);
+	 }
+	 tok_freq[tok_id-1]++;
 	 //ull *v = dict.find(s,sz);
 	 /*
 	 if(v==NULL) {
@@ -179,9 +188,12 @@ int main() {
       //add_tokens(buf,id);
       cnt++;
       if(cnt%1000==0)
-	 fprintf(stderr,"%d Documents Parsed %lu unique words\n",cnt,dict2.size());
+	 fprintf(stderr,"%d Documents Parsed %d unique words\n",cnt,no_words);
+	 //fprintf(stderr,"%d Documents Parsed %d unique words\n%fMB used\n",cnt,no_words,float(dict.cap*sizeof(dict.trie))/(1024*1024));
    }
-   for(map<string,ull>::iterator it = dict2.begin(); it != dict2.end(); it++)
-      printf("%s %llu\n",it->first.c_str(),it->second);
-   printf("Total number of words : %lu\n",dict2.size());
+   for(int i = 0; i < no_words; i++)
+   {
+      printf("%s %d\n",words[i].c_str(), tok_freq[i]);
+   }
+   printf("Total number of words : %d\n",no_words);
 }
