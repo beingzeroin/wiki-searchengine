@@ -1,12 +1,15 @@
 #include <cstdio>
 #include <map>
 #include <cstring>
+#include <algorithm>
 #include <vector>
 #include <string>
 using namespace std;
 #include <regex.h>
 #include "tokenize.h"
 #include "trie.h"
+
+#define CHUNK_FILE_LIM 50000
 
 #define INFOBOX(x) ((x)|4)
 #define OUTLINK(x) ((x)|1)
@@ -31,11 +34,39 @@ char DOCTYPE[][20] ={
 
 typedef unsigned long long ull;
 //map<string,ull> dict2;
-ptrie_set dict;
+ptrie_set *dict=NULL;
 int no_words = 0;
 vector<string> words;
 vector<int> tok_freq;
 vector<vector<pair<int,int> > > inv_index;
+void dump_all(const char *fname) {
+   vector<pair<string,int> > wlist;
+   fprintf(stderr,"Sorting tokens...\n");
+   for(size_t i = 0; i < words.size(); i++)
+      wlist.push_back(make_pair(string(words[i]),i));
+   sort(wlist.begin(),wlist.end());
+   FILE *f = fopen(fname,"wb");
+   fprintf(stderr,"Writing to file...\n");
+   for(size_t i = 0; i < wlist.size(); i++) {
+      fprintf(f,"%s ",wlist[i].first.c_str());
+      int s = inv_index[wlist[i].second].size();
+      fwrite(&s,sizeof(s),1,f);
+      auto end_it = inv_index[wlist[i].second].end();
+      for(auto it = inv_index[wlist[i].second].begin(); it!=end_it; it++) {
+	 int doc_id = it->first;
+	 int freq = it->second;
+	 fwrite(&doc_id,sizeof(int),1,f);
+	 fwrite(&freq,sizeof(int),1,f);
+      }
+   }
+   fprintf(stderr,"Clearing Memory...\n");
+   words.clear();
+   tok_freq.clear();
+   inv_index.clear();
+   delete dict;
+   dict = new ptrie_set();
+   no_words = 0;
+}
 
 int bufsz = 102400;
 char *buf; 
@@ -64,7 +95,7 @@ void add_tokens(char *inp,int id) {
       if(*s)
       {
 	 //dict2[string(s)]++;
-	 int tok_id = dict.el(s);
+	 int tok_id = dict->el(s);
 	 if(tok_id>no_words) {
 	    no_words++;
 	    words.push_back(string(s));
@@ -187,30 +218,35 @@ int main() {
    init();
    buf = new char[bufsz+5];
    int cnt = 0;
+   dict = new ptrie_set();
+   int file_id = 0;
    while(true) {
       if(!read_val())
 	 break;
       int id;
       sscanf(buf,"%d",&id);
-//      printf("Id: %d\n",id);
 
       read_val();
-      //printf("Title:\n");
       add_tokens(buf,TITLE(id*8));
+
       read_val();
       handle_infobox(buf,INFOBOX(id*8));
-//      printf("Text:\n");
       handle_text(buf,id*8);
-//      printf("%s\n",buf);
-      //add_tokens(buf,id);
       cnt++;
+      if(cnt%CHUNK_FILE_LIM==0) {
+	 char fname[100];
+	 sprintf(fname,"tempfile-%d",file_id++);
+	 fprintf(stderr,"Dumping partial index to file %s\n",fname);
+	 dump_all(fname);
+      }
       if(cnt%1000==0)
 	 fprintf(stderr,"%d Documents Parsed %d unique words\n",cnt,no_words);
-	 //fprintf(stderr,"%d Documents Parsed %d unique words\n%fMB used\n",cnt,no_words,float(dict.cap*sizeof(dict.trie))/(1024*1024));
    }
-   for(int i = 0; i < no_words; i++)
-   {
-      printf("%s %d\n",words[i].c_str(), tok_freq[i]);
+   if(cnt%CHUNK_FILE_LIM!=0) {
+      char fname[100];
+      sprintf(fname,"tempfile-%d",file_id++);
+      fprintf(stderr,"Dumping partial index to file %s\n",fname);
+      dump_all(fname);
    }
    printf("Total number of words : %d\n",no_words);
 }
