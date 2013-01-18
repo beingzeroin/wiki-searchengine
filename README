@@ -1,2 +1,28 @@
 Search Engine - Miniproject
 
+
+Index Structure:
+a list of posting entries for inverted index:
+abcd XXXXXX
+Every token consists only of [a-z0-9]
+the token is separated by a single space
+the first 4bytes following it is the size of the documentlist in bytes following it.
+The remaining is variable byte encoded. with an even number of values. the first set is the differences in doc_ids starting with 0
+
+Postings are concatanated.
+At the end of the postings The dictionary begins.
+abcd offset
+the token is followed by a single space. and then is a 8byte 64-bit integer specifying offset in file where the coorresponding posting begins.
+
+At the very end a single 64bit integer specifies the offset of the begining of this dictionary
+
+File:
+[
+
+Posting List
+
+]
+[
+Dictionary
+]
+[dictionary offset]
