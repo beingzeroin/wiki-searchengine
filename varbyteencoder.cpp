@@ -9,15 +9,15 @@ namespace varbyteencoder{
    int bufsz = 0;
 
    int encode(FILE *f,vector<pair<int,int> > v) {
+      if(buf==NULL) {
+	 bufsz = 102400;
+	 buf = new unsigned char[bufsz];
+      }
       sort(v.begin(),v.end());
       int prev = 0;
       for(auto it = v.begin(); it != v.end(); it++) {
 	 it->first-=prev;
 	 prev += it->first;
-      }
-      if(buf==NULL) {
-	 bufsz = 102400;
-	 buf = new unsigned char[bufsz];
       }
       int s=0;
       for(auto it: v) {
@@ -43,6 +43,10 @@ namespace varbyteencoder{
    }
 
    int decode(FILE *f, vector<pair<int,int>> &v) {
+      if(buf==NULL) {
+	 bufsz = 102400;
+	 buf = new unsigned char[bufsz];
+      }
       int c;
       fread(&c,sizeof(int),1,f);
       if(c >= bufsz) {

@@ -101,8 +101,8 @@ int main() {
 	 }
       }
       fprintf(f,"%s ",s.c_str());
-      /* USING VARBYTE ENCODER
       encode(f,cur_index);
+      /* USING VARBYTE ENCODER
       fwrite(&c, sizeof(int), 1, f);
       for(auto it : cur_index) {
 	 fwrite(&it.first, sizeof(int), 1, f);
