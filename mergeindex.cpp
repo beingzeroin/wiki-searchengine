@@ -13,6 +13,8 @@
 using varbyteencoder::encode;
 using varbyteencoder::decode;
 using namespace std;
+#define WRITE_BUF_SIZE 64*1024*1024
+#define READ_BUF_SIZE 5*1024*1024
 
 vector<pair<string,off_t> > dictionary;
 double get_time(const timespec &a) {
@@ -55,12 +57,26 @@ void get_file_names() {
    n = filenames.size();
    fprintf(stderr,"%lu Files for merging to Index\n",filenames.size());
 }
-int main() {
+int main(int argc , char**argv) {
    get_file_names();
-   f = fopen("searchindex.dat","wb");
    tempf = new FILE*[n];
+   char *write_buf = (char*) malloc(WRITE_BUF_SIZE+5);
+   char *read_buf = (char*)malloc(READ_BUF_SIZE*n);
+   if(argc==2) {
+      if(argv[1][0]=='-' && argv[1][1]=='\0')
+	 f = stdout;
+      else {
+	 f = fopen(argv[1],"wb");
+	 setvbuf(f,write_buf,_IOFBF,WRITE_BUF_SIZE); // 128MB BUffer
+      }
+   } else {
+      f = fopen("searchindex.dat","wb");
+      setvbuf(f,write_buf,_IOFBF,WRITE_BUF_SIZE); // 5MB BUffer
+   }
    for(int i = 0; i < n ; i++)
       tempf[i] = fopen(filenames[i].c_str(),"r");
+   for(int i = 0; i < n ; i++)
+      setvbuf(tempf[i],read_buf+i*READ_BUF_SIZE,_IOFBF,READ_BUF_SIZE); //2MB Buf 
    current_element.resize(n);
    typedef pair<string,int> pq_t;
    priority_queue<pq_t,vector<pq_t>,greater<pq_t> > pq;
@@ -89,7 +105,7 @@ int main() {
 	 ltime = etime;
 	 lread = inread;
 	 fprintf(stderr,"%d words output, %lu dict size\n",wcnt,wlsum);
-	 fprintf(stderr,"%02d:%02d elapsed, %f read , [%.2f MB/s]\n",int(dur)/60,int(dur)%60,float(inread)/(1024*1024),rate);
+	 fprintf(stderr,"%02d:%02d elapsed, %.2f MB read , [%.2f MB/s]\n",int(dur)/60,int(dur)%60,float(inread)/(1024*1024),rate);
       }
       vector<pair<int,int> > cur_index;
       while(!pq.empty() && pq.top().first==s) {
