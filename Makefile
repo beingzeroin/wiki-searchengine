@@ -22,6 +22,9 @@ tokenize.o : tokenize.cpp
 trie.o : trie.cpp
 	g++ -c $(CCFLAGS) trie.cpp
 
+varbyteencoder.o : varbyteencoder.cpp
+	g++ -c $(CCFLAGS) varbyteencoder.cpp
+
 
 clean:
 	rm -rf xmlparse2 tokenizer mergeindex *.o
