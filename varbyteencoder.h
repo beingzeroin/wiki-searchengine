@@ -7,7 +7,7 @@
 using std::vector;
 using std::pair;
 namespace varbyteencoder{
-   void encode(FILE *f,const vector<pair<int,int> > v);
-   void decode(FILE *f,vector<pair<int,int> > &v) ;
+   int encode(FILE *f,const vector<pair<int,int> > v);
+   int decode(FILE *f,vector<pair<int,int> > &v) ;
 }
 #endif

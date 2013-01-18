@@ -8,7 +8,7 @@ namespace varbyteencoder{
    unsigned char *buf = NULL;
    int bufsz = 0;
 
-   void encode(FILE *f,vector<pair<int,int> > v) {
+   int encode(FILE *f,vector<pair<int,int> > v) {
       sort(v.begin(),v.end());
       int prev = 0;
       for(auto it = v.begin(); it != v.end(); it++) {
@@ -39,9 +39,10 @@ namespace varbyteencoder{
       }
       fwrite(&s,1,sizeof(int),f);
       fwrite(buf,s,1,f);
+      return s;
    }
 
-   void decode(FILE *f, vector<pair<int,int>> &v) {
+   int decode(FILE *f, vector<pair<int,int>> &v) {
       int c;
       fread(&c,sizeof(int),1,f);
       if(c >= bufsz) {
@@ -81,5 +82,6 @@ namespace varbyteencoder{
 	 pval = p.first;
 	 v.push_back(p);
       }
+      return c;
    }
 }

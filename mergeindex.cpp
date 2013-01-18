@@ -8,6 +8,9 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include "varbyteencoder.h"
+using varbyteencoder::encode;
+using varbyteencoder::decode;
 using namespace std;
 
 double get_time(const timespec &a) {
@@ -25,6 +28,8 @@ string read_element(int i) {
    inread+=strlen(buf)+1;
    if(fscanf(tempf[i],"%s%*c",buf)==EOF)
       return "";
+   inread += decode(tempf[i],current_element[i]);
+   /* USING VARBYTE DECODING
    int c;
    assert(fread(&c,sizeof(int),1,tempf[i]));
    inread+=c*4*2+4;
@@ -34,6 +39,7 @@ string read_element(int i) {
       assert(fread(&freq,sizeof(int),1,tempf[i]));
       current_element[i].push_back(make_pair(doc,freq));
    }
+   */
    return string(buf);
 }
 vector<string> filenames;
@@ -95,12 +101,14 @@ int main() {
 	 }
       }
       fprintf(f,"%s ",s.c_str());
-      int c = cur_index.size();
+      /* USING VARBYTE ENCODER
+      encode(f,cur_index);
       fwrite(&c, sizeof(int), 1, f);
       for(auto it : cur_index) {
 	 fwrite(&it.first, sizeof(int), 1, f);
 	 fwrite(&it.second, sizeof(int), 1, f);
       }
+      */
    }
    fclose(f);
    for(int i = 0; i < n; i++)
