@@ -2,5 +2,6 @@ index
 a.out
 xmlparse2
 tokenizer
+mergeindex
 tempfile*
 *.o

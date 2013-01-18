@@ -114,7 +114,7 @@ struct hybrid_node {
 	 delete m;
    }
 };
-#define HYBRID_TRIE_LIM 4
+#define HYBRID_TRIE_LIM 5
 struct ptrie_set_hybrid {
    hybrid_node trie;
    int cnt;
