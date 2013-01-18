@@ -5,14 +5,23 @@
 #include <ctype.h>
 #include "trie.h"
 
+#define MAX_TOKEN_SIZE 20
+//truncate tokens to first 20 characters
+
 ptrie_set trie;
 
 
 void symbol_strip(char *s) {
    char *putp = s;
+   int c = 0;
    while(*s) {
-      if(isalnum(*s))
+      if(isalnum(*s)) {
 	 *(putp++) = tolower(*s);
+	 if(++c>=MAX_TOKEN_SIZE) {
+	    *putp = '\0';
+	    return;
+	 }
+      }
       s++;
    }
    *putp='\0';
