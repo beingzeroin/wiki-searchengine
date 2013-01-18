@@ -1,11 +1,19 @@
 //Author Phinfinity
 #include "varbyteencoder.h"
+#include <algorithm>
+using std::sort;
 #include <cstdlib>
 
 unsigned char *buf = NULL;
 int bufsz = 0;
 
-void encode(FILE *f,const vector<pair<int,int> > v) {
+void encode(FILE *f,vector<pair<int,int> > v) {
+   sort(v.begin(),v.end());
+   int prev = 0;
+   for(auto it = v.begin(); it != v.end(); it++) {
+      it->first-=prev;
+      prev += it->first;
+   }
    if(buf==NULL) {
       bufsz = 102400;
       buf = new unsigned char[bufsz];
@@ -17,12 +25,12 @@ void encode(FILE *f,const vector<pair<int,int> > v) {
 	 buf = (unsigned char*)realloc(buf,bufsz);
       }
       int c;
-      c = it.first;
+      c = it.first+1;
       while(c) {
 	 buf[s++] = ((c%128)<<1)|((c>>7)?1:0);
 	 c>>=7;
       }
-      c = it.second;
+      c = it.second+1;
       while(c) {
 	 buf[s++] = ((c%128)<<1)|((c>>7)?1:0);
 	 c>>=7;
@@ -34,14 +42,15 @@ void encode(FILE *f,const vector<pair<int,int> > v) {
 
 void decode(FILE *f, vector<pair<int,int>> &v) {
    int c;
-   fread(&c,1,sizeof(int),f);
+   fread(&c,sizeof(int),1,f);
    if(c >= bufsz) {
       while(c >= bufsz) bufsz*=2;
       buf = (unsigned char*)realloc(buf,bufsz);
    }
-   fread(buf,c,1,f);
+   fread(buf,1,c,f);
    int s = 0;
    int d;
+   int pval = 0;
    while(s<c) {
       pair<int,int> p;
       int intval;
@@ -53,7 +62,7 @@ void decode(FILE *f, vector<pair<int,int>> &v) {
 	    d<<=7;
 	 else break;
       }
-      p.first = intval;
+      p.first = intval-1;
 
       if(s>=c)
 	 break;
@@ -66,7 +75,9 @@ void decode(FILE *f, vector<pair<int,int>> &v) {
 	    d<<=7;
 	 else break;
       }
-      p.second = intval;
+      p.second = intval-1;
+      p.first += pval;
+      pval = p.first;
       v.push_back(p);
    }
 }
