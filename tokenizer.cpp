@@ -239,7 +239,7 @@ int main() {
 	 fprintf(stderr,"Dumping partial index to file %s\n",fname);
 	 dump_all(fname);
       }
-      if(cnt%1000==0)
+      if(cnt%10000==0)
 	 fprintf(stderr,"%d Documents Parsed %d unique words\n",cnt,no_words);
    }
    if(cnt%CHUNK_FILE_LIM!=0) {

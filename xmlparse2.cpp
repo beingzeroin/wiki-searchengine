@@ -3,16 +3,10 @@
 #include <cstdlib>
 #include <cstring>
 #include <sys/types.h>
-#include <regex.h>
 #include "rapidxml/rapidxml.hpp"
 using rapidxml::xml_document;
 using rapidxml::xml_node;
 int main() {
-
-   regex_t page,pageclose;
-   regmatch_t match1,match2;
-   regcomp(&page,"<page>",0);
-   regcomp(&pageclose,"</page>",0);
 
    int bufsz = 102400;
    char *buf = new char[bufsz+5];
@@ -21,12 +15,25 @@ int main() {
    int b = 0;
    int cnt = 0;
    while(true) {
-      if(!regexec(&pageclose,buf+b,1,&match1,0)) {
-	 regexec(&page,buf+b,1,&match2,0);
+      char* start_off,*close_off;
+      start_off = buf+b;
+      bool got = false;
+      while(*start_off && strncmp(start_off,"<page>",6)!=0)
+	 start_off++;
+      if(*start_off && strncmp(start_off,"<page>",6)==0) {
+	 close_off = start_off +6;
+	 while(*close_off && strncmp(close_off,"</page>",7)!=0)
+	    close_off++;
+	 if(*close_off && strncmp(close_off,"</page>",7)==0) {
+	    got = true;
+	    close_off+=7;
+	 }
+      }
+      if(got){
 	 cnt++;
-	 buf[b+match1.rm_eo]=0;
+	 *close_off=0;
 	 xml_document<char> doc;
-	 doc.parse<0>(buf+b+match2.rm_so);
+	 doc.parse<0>(start_off);
 	 xml_node<char> *root = doc.first_node();
 	 xml_node<char> *title,*id,*text;
 	 title = root->first_node("title");
@@ -35,10 +42,11 @@ int main() {
 	 printf("%lu %s\n",id->value_size(), id->value());
 	 printf("%lu %s\n",title->value_size(), title->value());
 	 printf("%lu %s\n",text->value_size(), text->value());
-	 b += match1.rm_eo+1;
+	 b = close_off+1 - buf;
       } else {
 	 if(b*2 < bufsz) {
 	    bufsz *= 2;
+	    fprintf(stderr,"Resizing.. %d\n",bufsz);
 	    buf = (char*) realloc(buf,bufsz+5);
 	 } 
 

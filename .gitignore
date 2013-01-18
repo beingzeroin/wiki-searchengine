@@ -2,4 +2,5 @@ index
 a.out
 xmlparse2
 tokenizer
+tempfile*
 *.o
