@@ -49,10 +49,13 @@ void get_file_names() {
 }
 int main() {
    get_file_names();
-   f = fopen("searchindex.dat","wb");
    tempf = new FILE*[n];
+   f = fopen("searchindex.dat","wb");
    for(int i = 0; i < n ; i++)
       tempf[i] = fopen(filenames[i].c_str(),"r");
+   setvbuf(f,NULL,_IOFBF,2*1024*1024); // 2MB BUffer per file
+   for(int i = 0; i < n ; i++)
+      setvbuf(tempf[i],NULL,_IOFBF,2*1024*1024); 
    current_element.resize(n);
    typedef pair<string,int> pq_t;
    priority_queue<pq_t,vector<pq_t>,greater<pq_t> > pq;
@@ -80,7 +83,7 @@ int main() {
 	 ltime = etime;
 	 lread = inread;
 	 fprintf(stderr,"%d words output, %lu dict size\n",wcnt,wlsum);
-	 fprintf(stderr,"%02d:%02d elapsed, %f read , [%.2f MB/s]\n",int(dur)/60,int(dur)%60,float(inread)/(1024*1024),rate);
+	 fprintf(stderr,"%02d:%02d elapsed, %.2f MB read , [%.2f MB/s]\n",int(dur)/60,int(dur)%60,float(inread)/(1024*1024),rate);
       }
       vector<pair<int,int> > cur_index;
       while(!pq.empty() && pq.top().first==s) {
