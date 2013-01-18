@@ -3,9 +3,9 @@ all : xmlparse2 tokenizer mergeindex
 
 xmlparse2 : xmlparse2.o
 	g++ $(CCFLAGS) xmlparse2.o -o xmlparse2
-tokenizer : tokenizer.o stem.o tokenize.o stem.o trie.o
-	g++ $(CCFLAGS) tokenizer.o tokenize.o stem.o trie.o -o tokenizer
-mergeindex : mergeindex.cpp
+tokenizer : tokenizer.o stem.o tokenize.o stem.o trie.o varbyteencoder.o
+	g++ $(CCFLAGS) tokenizer.o tokenize.o stem.o trie.o varbyteencoder.o -o tokenizer
+mergeindex : mergeindex.cpp varbyteencoder.o
 	g++ $(CCFLAGS) -lrt mergeindex.cpp -o mergeindex 
 xmlparse2.o : xmlparse2.cpp
 	g++ -c $(CCFLAGS) xmlparse2.cpp

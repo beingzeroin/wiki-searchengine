@@ -8,6 +8,8 @@ using namespace std;
 #include <regex.h>
 #include "tokenize.h"
 #include "trie.h"
+#include "varbyteencoder.h"
+using varbyteencoder::encode;
 
 #define CHUNK_FILE_LIM 50000
 
@@ -49,6 +51,9 @@ void dump_all(const char *fname) {
    fprintf(stderr,"Writing to file...\n");
    for(size_t i = 0; i < wlist.size(); i++) {
       fprintf(f,"%s ",wlist[i].first.c_str());
+      
+      encode(f,inv_index[wlist[i].second]);
+      /* USING VARBYTE ENCODING INSTEAD
       int s = inv_index[wlist[i].second].size();
       fwrite(&s,sizeof(s),1,f);
       auto end_it = inv_index[wlist[i].second].end();
@@ -58,6 +63,7 @@ void dump_all(const char *fname) {
 	 fwrite(&doc_id,sizeof(int),1,f);
 	 fwrite(&freq,sizeof(int),1,f);
       }
+      */
    }
    fprintf(stderr,"Clearing Memory...\n");
    words.clear();
