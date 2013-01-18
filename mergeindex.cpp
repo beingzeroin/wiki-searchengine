@@ -47,15 +47,24 @@ void get_file_names() {
    n = filenames.size();
    fprintf(stderr,"%lu Files for merging to Index\n",filenames.size());
 }
-int main() {
+int main(int argc , char**argv) {
    get_file_names();
    tempf = new FILE*[n];
-   f = fopen("searchindex.dat","wb");
+   if(argc==2) {
+      if(argv[1][0]=='-' && argv[1][1]=='\0')
+	 f = stdout;
+      else {
+	 f = fopen(argv[1],"wb");
+	 setvbuf(f,NULL,_IOFBF,128*1024*1024); // 128MB BUffer
+      }
+   } else {
+      f = fopen("searchindex.dat","wb");
+      setvbuf(f,NULL,_IOFBF,5*1024*1024); // 5MB BUffer
+   }
    for(int i = 0; i < n ; i++)
       tempf[i] = fopen(filenames[i].c_str(),"r");
-   setvbuf(f,NULL,_IOFBF,2*1024*1024); // 2MB BUffer per file
    for(int i = 0; i < n ; i++)
-      setvbuf(tempf[i],NULL,_IOFBF,2*1024*1024); 
+      setvbuf(tempf[i],NULL,_IOFBF,2*1024*1024); //2MB Buf 
    current_element.resize(n);
    typedef pair<string,int> pq_t;
    priority_queue<pq_t,vector<pq_t>,greater<pq_t> > pq;
