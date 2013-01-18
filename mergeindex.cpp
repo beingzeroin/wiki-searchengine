@@ -1,5 +1,6 @@
 //Author Phinfinity
 
+#define _FILE_OFFSET_BITS 64
 #include <glob.h>
 #include <cstdio>
 #include <cstring>
@@ -13,6 +14,7 @@ using varbyteencoder::encode;
 using varbyteencoder::decode;
 using namespace std;
 
+vector<pair<string,off_t> > dictionary;
 double get_time(const timespec &a) {
    return a.tv_sec+double(a.tv_nsec)/1e9;
 }
@@ -74,6 +76,7 @@ int main() {
    long lread = 0;
    while(!pq.empty()) {
       string s = pq.top().first;
+      dictionary.push_back(make_pair(s,ftello(f)));
       wcnt++;
       wlsum += s.size();
       if(wcnt%100000==0){
@@ -110,8 +113,14 @@ int main() {
       }
       */
    }
-   fclose(f);
    for(int i = 0; i < n; i++)
       fclose(tempf[i]);
+   off_t dict_offset = ftello(f);
+   for(auto it : dictionary) {
+      fprintf(f,"%s ",it.first.c_str());
+      fwrite(&it.second,sizeof(off_t),1,f);
+   }
+   fwrite(&dict_offset,sizeof(off_t),1,f);
+   fclose(f);
    return 0;
 }
