@@ -9,6 +9,8 @@
 #include <vector>
 #include <queue>
 using namespace std;
+#define WRITE_BUF_SIZE 64*1024*1024
+#define READ_BUF_SIZE 5*1024*1024
 
 double get_time(const timespec &a) {
    return a.tv_sec+double(a.tv_nsec)/1e9;
@@ -50,21 +52,23 @@ void get_file_names() {
 int main(int argc , char**argv) {
    get_file_names();
    tempf = new FILE*[n];
+   char *write_buf = (char*) malloc(WRITE_BUF_SIZE+5);
+   char *read_buf = (char*)malloc(READ_BUF_SIZE*n);
    if(argc==2) {
       if(argv[1][0]=='-' && argv[1][1]=='\0')
 	 f = stdout;
       else {
 	 f = fopen(argv[1],"wb");
-	 setvbuf(f,NULL,_IOFBF,128*1024*1024); // 128MB BUffer
+	 setvbuf(f,write_buf,_IOFBF,WRITE_BUF_SIZE); // 128MB BUffer
       }
    } else {
       f = fopen("searchindex.dat","wb");
-      setvbuf(f,NULL,_IOFBF,5*1024*1024); // 5MB BUffer
+      setvbuf(f,write_buf,_IOFBF,WRITE_BUF_SIZE); // 5MB BUffer
    }
    for(int i = 0; i < n ; i++)
       tempf[i] = fopen(filenames[i].c_str(),"r");
    for(int i = 0; i < n ; i++)
-      setvbuf(tempf[i],NULL,_IOFBF,2*1024*1024); //2MB Buf 
+      setvbuf(tempf[i],read_buf+i*READ_BUF_SIZE,_IOFBF,READ_BUF_SIZE); //2MB Buf 
    current_element.resize(n);
    typedef pair<string,int> pq_t;
    priority_queue<pq_t,vector<pq_t>,greater<pq_t> > pq;
