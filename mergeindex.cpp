@@ -10,6 +10,9 @@
 #include <queue>
 using namespace std;
 
+double get_time(const timespec &a) {
+   return a.tv_sec+double(a.tv_nsec)/1e9;
+}
 FILE *f;
 FILE **tempf;
 vector<vector<pair<int,int> > > current_element;
@@ -59,22 +62,25 @@ int main() {
    }
    int wcnt = 0;
    long wlsum = 0;
-   clock_t ltime = clock();
-   clock_t start_time = ltime;
+   timespec ltime,start_time;
+   clock_gettime(CLOCK_MONOTONIC,&ltime);
+   clock_gettime(CLOCK_MONOTONIC,&start_time);
    long lread = 0;
    while(!pq.empty()) {
       string s = pq.top().first;
       wcnt++;
       wlsum += s.size();
       if(wcnt%100000==0){
-	 clock_t etime = clock();
+	 timespec etime;
+	 clock_gettime(CLOCK_MONOTONIC,&etime);
+	 float dur = get_time(etime) - get_time(ltime);
 	 float rate = float(inread-lread)/(1024*1024);
-	 rate /= float(etime-ltime)/CLOCKS_PER_SEC;
+	 rate/=dur;
+	 dur = get_time(etime) - get_time(start_time);
 	 ltime = etime;
 	 lread = inread;
-	 int dur = (etime-start_time)/CLOCKS_PER_SEC;
 	 fprintf(stderr,"%d words output, %lu dict size\n",wcnt,wlsum);
-	 fprintf(stderr,"%02d:%02d elapsed, %f read , [%.2f MB/s]\n",dur/60,dur%60,float(inread)/(1024*1024),rate);
+	 fprintf(stderr,"%02d:%02d elapsed, %f read , [%.2f MB/s]\n",int(dur)/60,int(dur)%60,float(inread)/(1024*1024),rate);
       }
       vector<pair<int,int> > cur_index;
       while(!pq.empty() && pq.top().first==s) {
