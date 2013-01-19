@@ -15,8 +15,11 @@ using varbyteencoder::decode;
 using namespace std;
 #define WRITE_BUF_SIZE 64*1024*1024
 #define READ_BUF_SIZE 5*1024*1024
+#define DICT_SEGMENT_SIZE 32*1024*1024
 
 vector<pair<string,off_t> > dictionary;
+int dictionary_size = 0;
+vector<off_t> dict_offset_list;
 double get_time(const timespec &a) {
    return a.tv_sec+double(a.tv_nsec)/1e9;
 }
@@ -34,16 +37,16 @@ string read_element(int i) {
       return "";
    inread += decode(tempf[i],current_element[i]);
    /* USING VARBYTE DECODING
-   int c;
-   assert(fread(&c,sizeof(int),1,tempf[i]));
-   inread+=c*4*2+4;
-   while(c--) {
+      int c;
+      assert(fread(&c,sizeof(int),1,tempf[i]));
+      inread+=c*4*2+4;
+      while(c--) {
       int doc,freq;
       assert(fread(&doc,sizeof(int),1,tempf[i]));
       assert(fread(&freq,sizeof(int),1,tempf[i]));
       current_element[i].push_back(make_pair(doc,freq));
-   }
-   */
+      }
+      */
    return string(buf);
 }
 vector<string> filenames;
@@ -56,6 +59,16 @@ void get_file_names() {
    }
    n = filenames.size();
    fprintf(stderr,"%lu Files for merging to Index\n",filenames.size());
+}
+void write_dict_segment() {
+   dict_offset_list.push_back(ftello(f));
+   fprintf(f,"!dictseg ");
+   for(auto it : dictionary) {
+      fprintf(f,"%s ",it.first.c_str());
+      fwrite(&it.second,sizeof(off_t),1,f);
+   }
+   dictionary.clear();
+   dictionary_size = 0;
 }
 int main(int argc , char**argv) {
    get_file_names();
@@ -92,7 +105,11 @@ int main(int argc , char**argv) {
    long lread = 0;
    while(!pq.empty()) {
       string s = pq.top().first;
+      if(dictionary_size >= DICT_SEGMENT_SIZE) {
+	 write_dict_segment();
+      }
       dictionary.push_back(make_pair(s,ftello(f)));
+      dictionary_size += s.size()+9;
       wcnt++;
       wlsum += s.size();
       if(wcnt%100000==0){
@@ -122,21 +139,22 @@ int main(int argc , char**argv) {
       fprintf(f,"%s ",s.c_str());
       encode(f,cur_index);
       /* USING VARBYTE ENCODER
-      fwrite(&c, sizeof(int), 1, f);
-      for(auto it : cur_index) {
+	 fwrite(&c, sizeof(int), 1, f);
+	 for(auto it : cur_index) {
 	 fwrite(&it.first, sizeof(int), 1, f);
 	 fwrite(&it.second, sizeof(int), 1, f);
-      }
-      */
+	 }
+	 */
    }
+   if(dictionary.size()>0)
+      write_dict_segment();
    for(int i = 0; i < n; i++)
       fclose(tempf[i]);
-   off_t dict_offset = ftello(f);
-   for(auto it : dictionary) {
-      fprintf(f,"%s ",it.first.c_str());
-      fwrite(&it.second,sizeof(off_t),1,f);
-   }
-   fwrite(&dict_offset,sizeof(off_t),1,f);
+
+   off_t dict_seg_index_offset = ftello(f);
+   for(auto it : dict_offset_list)
+      fwrite(&it,sizeof(off_t),1,f);
+   fwrite(&dict_seg_index_offset,sizeof(off_t),1,f);
    fclose(f);
    return 0;
 }

@@ -3,29 +3,41 @@ Search Engine - Miniproject
 
 Index Structure:
 a list of posting entries for inverted index:
-abcd XXXXXX
+abcd XXXXX
 Every token consists only of [a-z0-9]
 the token is separated by a single space
 the first 4bytes following it is the size of the documentlist in bytes following it.
 The remaining is variable byte encoded. with an even number of values. the first set is the differences in doc_ids starting with 0
 
-Postings are concatanated.
-At the end of the postings The dictionary begins.
-abcd offset
+Inbetween posting entries segments of the dictionary are spread;
+after the dictionary becomes suitably large (32MB). The dictionary is dumped to file inbetween the posting list.
+
+Dictionary Segment Structure:
+!dict XXXXX
+"!dict" is a special string literal to mark a dictionary segment
+a single space to follow same structure as index parsing
+XXXXX is the actual dictionary segment. which is a series of "word _space_ 8byteoffset"
 the token is followed by a single space. and then is a 8byte 64-bit integer specifying offset in file where the coorresponding posting begins.
 
-At the very end a single 64bit integer specifies the offset of the begining of this dictionary
+at the end of the file is another index pointing to the several sections where dictionary segments have been written.
+These are simply a sequence of 8byte values.
+The very last 8 byte value is an offset marker to the above index
 
 File:
-[
-
-Posting List
-
+[Posting List
+.
+[Dictionary seg]
+.
+.
+.
+[Dictionary seg]
+.
+.
+.
 ]
-[
-Dictionary
+[dictionary offset list
 ]
-[dictionary offset]
+[dictionary offset list offset]
 
 Index Statistics:
 Takes 90minutes for generating complete index (12 minutes for second phase merge)
