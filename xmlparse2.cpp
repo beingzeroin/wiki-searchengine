@@ -1,3 +1,4 @@
+// Author Phinfinity
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
@@ -46,7 +47,7 @@ int main() {
       } else {
 	 if(b*2 < bufsz) {
 	    bufsz *= 2;
-	    fprintf(stderr,"Resizing.. %d\n",bufsz);
+	    //fprintf(stderr,"Resizing.. %d\n",bufsz);
 	    buf = (char*) realloc(buf,bufsz+5);
 	 } 
 

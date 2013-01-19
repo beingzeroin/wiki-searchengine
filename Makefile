@@ -1,3 +1,5 @@
+# Makfile by Anish Shankar <rndanish@gmail.com
+# For IRE MiniProject , Roll No: 201001085
 CCFLAGS = -O2 -std=c++11 -Wall
 all : xmlparse2 tokenizer mergeindex
 
@@ -28,3 +30,12 @@ varbyteencoder.o : varbyteencoder.cpp
 
 clean:
 	rm -rf xmlparse2 tokenizer mergeindex *.o
+	rm -rf 201001085_MiniProject*
+
+zip: *.cpp *.h *.c *.sh
+	rm -rf 201001085_MiniProject*
+	mkdir 201001085_MiniProject
+	cp stem.c mergeindex.cpp read_index.cpp tokenize.cpp tokenizer.cpp trie.cpp varbyteencoder.cpp xmlparse2.cpp stem.h tokenize.h trie.h varbyteencoder.h Makefile install.sh 201001085_MiniProject
+	cp -a rapidxml 201001085_MiniProject/
+	cp README 201001085_MiniProject
+

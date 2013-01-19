@@ -1,3 +1,4 @@
+// Author Phinfinity
 #include "trie.h"
 #include <cstdio>
 int convdict[256];

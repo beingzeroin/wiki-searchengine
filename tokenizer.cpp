@@ -1,3 +1,4 @@
+// Author Phinfinity
 #include <cstdio>
 #include <map>
 #include <cstring>
@@ -43,12 +44,12 @@ vector<int> tok_freq;
 vector<vector<pair<int,int> > > inv_index;
 void dump_all(const char *fname) {
    vector<pair<string,int> > wlist;
-   fprintf(stderr,"Sorting tokens...\n");
+   //fprintf(stderr,"Sorting tokens...\n");
    for(size_t i = 0; i < words.size(); i++)
       wlist.push_back(make_pair(string(words[i]),i));
    sort(wlist.begin(),wlist.end());
    FILE *f = fopen(fname,"wb");
-   fprintf(stderr,"Writing to file...\n");
+   //fprintf(stderr,"Writing to file...\n");
    for(size_t i = 0; i < wlist.size(); i++) {
       fprintf(f,"%s ",wlist[i].first.c_str());
       
@@ -65,7 +66,7 @@ void dump_all(const char *fname) {
       }
       */
    }
-   fprintf(stderr,"Clearing Memory...\n");
+   //fprintf(stderr,"Clearing Memory...\n");
    words.clear();
    tok_freq.clear();
    inv_index.clear();
@@ -81,7 +82,7 @@ void resize_buf(int s) {
       bufsz*=2;
    delete [] buf;
    buf = new char[bufsz+5];
-   fprintf(stderr,"NOTE: Resized to %d\n",bufsz);
+   //fprintf(stderr,"NOTE: Resized to %d\n",bufsz);
 }
 bool read_val() {
    int cnt;
@@ -242,17 +243,18 @@ int main() {
       if(cnt%CHUNK_FILE_LIM==0) {
 	 char fname[100];
 	 sprintf(fname,"tempfile-%d",file_id++);
-	 fprintf(stderr,"Dumping partial index to file %s\n",fname);
+	 fprintf(stderr,"Dumping partial index to file %s\r",fname);
 	 dump_all(fname);
       }
+      /*
       if(cnt%10000==0)
 	 fprintf(stderr,"%d Documents Parsed %d unique words\n",cnt,no_words);
+	 */
    }
    if(cnt%CHUNK_FILE_LIM!=0) {
       char fname[100];
       sprintf(fname,"tempfile-%d",file_id++);
-      fprintf(stderr,"Dumping partial index to file %s\n",fname);
+      fprintf(stderr,"Dumping partial index to file %s\r",fname);
       dump_all(fname);
    }
-   printf("Total number of words : %d\n",no_words);
 }

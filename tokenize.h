@@ -1,3 +1,4 @@
+// Author Phinfinity
 #ifndef TOKENIZER_H
 #define TOKENIZER_H
 // Pass NULL to use previous string, str for new string

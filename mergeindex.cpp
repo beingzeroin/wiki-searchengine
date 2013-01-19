@@ -121,8 +121,8 @@ int main(int argc , char**argv) {
 	 dur = get_time(etime) - get_time(start_time);
 	 ltime = etime;
 	 lread = inread;
-	 fprintf(stderr,"%d words output, %lu dict size\n",wcnt,wlsum);
-	 fprintf(stderr,"%02d:%02d elapsed, %.2f MB read , [%.2f MB/s]\n",int(dur)/60,int(dur)%60,float(inread)/(1024*1024),rate);
+	 //fprintf(stderr,"%d words output, %lu dict size\n",wcnt,wlsum);
+	 fprintf(stderr,"\r%02d:%02d elapsed, %.2f MB read , [%.2f MB/s]",int(dur)/60,int(dur)%60,float(inread)/(1024*1024),rate);
       }
       vector<pair<int,int> > cur_index;
       while(!pq.empty() && pq.top().first==s) {
@@ -133,7 +133,7 @@ int main(int argc , char**argv) {
 	 if(ns!="")
 	    pq.push(make_pair(ns,id));
 	 else {
-	    fprintf(stderr,"tempfile-%d is done!\n",id);
+	    //fprintf(stderr,"tempfile-%d is done!\n",id);
 	 }
       }
       fprintf(f,"%s ",s.c_str());
@@ -156,5 +156,6 @@ int main(int argc , char**argv) {
       fwrite(&it,sizeof(off_t),1,f);
    fwrite(&dict_seg_index_offset,sizeof(off_t),1,f);
    fclose(f);
+   fprintf(stderr,"\n");
    return 0;
 }

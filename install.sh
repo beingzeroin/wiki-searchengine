@@ -35,5 +35,4 @@ time $PV $INPUT_XML | ./xmlparse2 | ./tokenizer
 time ./mergeindex $OUTPUT_XML
 echo "Index Complete removing temporary files"
 rm -f tempfile-*;
-
-
+echo "Index Saved to $OUTPUT_XML"
