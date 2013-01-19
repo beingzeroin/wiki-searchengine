@@ -13,7 +13,7 @@ xmlparse2 : xmlparse2.o
 tokenizer : tokenizer.o stem.o tokenize.o stem.o trie.o varbyteencoder.o
 	g++ $(CCFLAGS) tokenizer.o tokenize.o stem.o trie.o varbyteencoder.o -o tokenizer
 mergeindex : mergeindex.cpp varbyteencoder.o
-	g++ $(CCFLAGS) -lrt mergeindex.cpp varbyteencoder.o -o mergeindex 
+	g++ $(CCFLAGS) -Wl,--no-as-needed -lrt mergeindex.cpp varbyteencoder.o -o mergeindex 
 xmlparse2.o : xmlparse2.cpp
 	g++ -c $(CCFLAGS) xmlparse2.cpp
 
