@@ -38,4 +38,5 @@ zip: *.cpp *.h *.c *.sh
 	cp stem.c mergeindex.cpp read_index.cpp tokenize.cpp tokenizer.cpp trie.cpp varbyteencoder.cpp xmlparse2.cpp stem.h tokenize.h trie.h varbyteencoder.h Makefile install.sh 201001085_MiniProject
 	cp -a rapidxml 201001085_MiniProject/
 	cp README 201001085_MiniProject
+	tar cvzf 201001085_MiniProject.tgz 201001085_MiniProject
 
