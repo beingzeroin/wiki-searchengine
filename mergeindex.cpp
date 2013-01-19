@@ -63,6 +63,8 @@ void get_file_names() {
 void write_dict_segment() {
    dict_offset_list.push_back(ftello(f));
    fprintf(f,"!dictseg ");
+   int c = dictionary.size();
+   fwrite(&c,sizeof(int),1,f);
    for(auto it : dictionary) {
       fprintf(f,"%s ",it.first.c_str());
       fwrite(&it.second,sizeof(off_t),1,f);

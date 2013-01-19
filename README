@@ -2,7 +2,7 @@ Search Engine - Miniproject
 
 Author : Anish Shankar <rndanish@gmail.com>
 Roll No: 201001085
-last source hash : 9ca0593
+last source hash : e2ce1d442a34
 
 
 Index Statistics:
@@ -30,7 +30,8 @@ Dictionary Segment Structure:
 !dict XXXXX
 "!dict" is a special string literal to mark a dictionary segment
 a single space to follow same structure as index parsing
-XXXXX is the actual dictionary segment. which is a series of "word _space_ 8byteoffset"
+XXXXX is a 32bit integer , number of dictionary elements and offsets following.
+actual dictionary segment follows. which is a series of "word _space_ 8byteoffset"
 the token is followed by a single space. and then is a 8byte 64-bit integer specifying offset in file where the coorresponding posting begins.
 
 at the end of the file is another index pointing to the several sections where dictionary segments have been written.
