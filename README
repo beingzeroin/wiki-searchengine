@@ -5,6 +5,16 @@ Roll No: 201001085
 last source hash : 9ca0593
 
 
+Index Statistics:
+Takes 90minutes for generating complete index on personal laptop
+5.4 GB Index. (Uses variable byte encoding techniques from the book)
+
+Features:
+	* Compressed Index . Uses Variable byte encoding techniques
+	* Piped Architecture. Uses separate process for IO and XML Parsing
+	* 2-Phase algorithm , with short IO-based merge phase on compressed partial index
+
+
 Index Structure:
 a list of posting entries for inverted index:
 abcd XXXXX
@@ -43,6 +53,3 @@ File:
 ]
 [dictionary offset list offset]
 
-Index Statistics:
-Takes 90minutes for generating complete index (12 minutes for second phase merge)
-5.4 GB Index. (Uses variable byte encoding techniques from the book)
