@@ -31,13 +31,13 @@ int main(int argc, char**argv) {
       fread(&dic_seg_offset,sizeof(off_t),1,f);
       dict_seg_list.push_back(dic_seg_offset);
    }
+   int read_size = 0;
    for(size_t d_seg = 0; d_seg < dict_seg_list.size(); d_seg++) {
       fseek(f,dict_seg_list[d_seg],SEEK_SET);
       fscanf(f,"%*s%*c");
       int c;
       fread(&c,sizeof(int),1,f);
 
-      int read_size = 0;
       int l = 0;
       while(c--) {
 	 fscanf(f,"%s%*c",buf);
