@@ -26,3 +26,7 @@ Posting List
 Dictionary
 ]
 [dictionary offset]
+
+Index Statistics:
+Takes 90minutes for generating complete index (12 minutes for second phase merge)
+5.4 GB Index. (Uses variable byte encoding techniques from the book)
