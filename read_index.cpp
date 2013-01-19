@@ -8,6 +8,9 @@
 #include "varbyteencoder.h"
 using varbyteencoder::decode;
 using namespace std;
+char buf[100];
+vector<pair<string,off_t> > dict;
+
 int main(int argc, char**argv) {
    fprintf(stderr,"Warning this tool is part of the querying engine, This tool is under construction and has several bugs. Do not Evaluate\n");
    if(argc!=2) {
@@ -16,28 +19,38 @@ int main(int argc, char**argv) {
    }
    FILE *f = fopen(argv[1],"rb");
 
-   off_t dict_offset = 0,file_size;
-   fseek(f,-sizeof(dict_offset),SEEK_END);
+   off_t dict_seg_list_offset = 0,file_size;
+   fseek(f,-sizeof(dict_seg_list_offset),SEEK_END);
+   fread(&dict_seg_list_offset,sizeof(dict_seg_list_offset),1,f);
    file_size = ftello(f);
    printf("File Size : %.3f MB\n",float(file_size)/(1024*1024));
-   fread(&dict_offset,sizeof(dict_offset),1,f);
-   printf("Dictionary Size : %.3f MB\n",float(file_size - dict_offset)/(1024*1024)); 
-   fseeko(f,dict_offset,SEEK_SET);
-   char buf[100];
-   vector<pair<string,off_t> > dict;
-   int read_size = 0;
-   int l = 0;
+   fseeko(f,dict_seg_list_offset,SEEK_SET);
+   vector<off_t> dict_seg_list;
    while(ftello(f)+8 < file_size) {
-      fscanf(f,"%s%*c",buf);
-      off_t offset;
-      fread(&offset,sizeof(offset),1,f);
-      dict.push_back(make_pair(string(buf),offset));
-      l += 9+strlen(buf);
+      off_t dic_seg_offset;
+      fread(&dic_seg_offset,sizeof(off_t),1,f);
+      dict_seg_list.push_back(dic_seg_offset);
+   }
+   for(size_t d_seg = 0; d_seg < dict_seg_list.size(); d_seg++) {
+      fseek(f,dict_seg_list[d_seg],SEEK_SET);
+      fscanf(f,"%*s%*c");
+      int c;
+      fread(&c,sizeof(int),1,f);
 
-      if(l >= 8*1024*1024) {
-	 read_size+=l;
-	 l = 0;
-	 fprintf(stderr,"\rRead %d MB",read_size/(1024*1024));
+      int read_size = 0;
+      int l = 0;
+      while(c--) {
+	 fscanf(f,"%s%*c",buf);
+	 off_t offset;
+	 fread(&offset,sizeof(offset),1,f);
+	 dict.push_back(make_pair(string(buf),offset));
+	 l += 9+strlen(buf);
+
+	 if(l >= 8*1024*1024) {
+	    read_size+=l;
+	    l = 0;
+	    fprintf(stderr,"\rRead %d MB",read_size/(1024*1024));
+	 }
       }
    }
    fprintf(stderr,"\r");

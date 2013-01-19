@@ -243,7 +243,7 @@ int main() {
       if(cnt%CHUNK_FILE_LIM==0) {
 	 char fname[100];
 	 sprintf(fname,"tempfile-%d",file_id++);
-	 fprintf(stderr,"Dumping partial index to file %s\r",fname);
+	 fprintf(stderr,"\rDumping partial index to file %s",fname);
 	 dump_all(fname);
       }
       /*
@@ -254,7 +254,8 @@ int main() {
    if(cnt%CHUNK_FILE_LIM!=0) {
       char fname[100];
       sprintf(fname,"tempfile-%d",file_id++);
-      fprintf(stderr,"Dumping partial index to file %s\r",fname);
+      fprintf(stderr,"\rDumping partial index to file %s",fname);
       dump_all(fname);
    }
+   fprintf(stderr,"\n");
 }
