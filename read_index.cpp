@@ -58,8 +58,8 @@ vector<pair<int,double> > process_token(char *token,int filter) {
       if(pt != dict.end() && p.first == pt->first) {
 	 //valid_word = true;
 	 p = *pt;
-	 printf("Found string : %s\n",p.first.c_str());
-	 printf("Offset : %ld\n",p.second);
+	 //printf("Found string : %s\n",p.first.c_str());
+	 //printf("Offset : %ld\n",p.second);
 	 fseeko(f,p.second,SEEK_SET);
 	 vector<pair<int,int> > v;
 	 fscanf(f,"%*s%*c");
@@ -168,8 +168,6 @@ int main(int argc, char**argv) {
    int read_size = 0;
    fprintf(stderr,"  Loading TokenDictionary...");
    for(size_t d_seg = 0; d_seg < dict_seg_list.size(); d_seg++) {
-      pcnt = (pcnt+1)%4;
-      fprintf(stderr,"\r%c",progress[pcnt]);
       fseek(f,dict_seg_list[d_seg],SEEK_SET);
       fscanf(f,"%*s%*c");
       int c;
@@ -223,8 +221,8 @@ int main(int argc, char**argv) {
 
 
 
-   printf("Enter words to query :\n");
    while(true) {
+      printf("Enter query :\n");
       auto tokens = process_input();
       timespec start_time,end_time;
       clock_gettime(CLOCK_MONOTONIC,&start_time);
@@ -237,7 +235,7 @@ int main(int argc, char**argv) {
 	 auto tfidf = process_token(buf3,token.second);
 	 vector<pair<double,int> > v;
 	 for(auto it: tfidf)
-	    ranklist[it.first] += it.second;
+	    ranklist[it.first] += 1+it.second; // constant extra score of 1 for boosting multiple term match
       }
       vector<pair<double,int> > final_ranklist;
       for (auto it : ranklist)
