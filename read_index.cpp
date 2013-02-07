@@ -142,8 +142,8 @@ vector<pair<string,int> > process_input() {
    return ret;
 }
 int main(int argc, char**argv) {
-   if(argc!=2) {
-      fprintf(stderr, "Usage : %s index_file_name\n",argv[0]);
+   if(argc!=3) {
+      fprintf(stderr, "Usage : %s index_file_name docindex.dat\n",argv[0]);
       return 2;
    }
    f = fopen(argv[1],"rb");
@@ -189,7 +189,7 @@ int main(int argc, char**argv) {
    printf("%ld Words in Dictionary!\n",dict.size());
 
    // Load documents
-   FILE *doc_index = fopen("docindex.dat","r");
+   FILE *doc_index = fopen(argv[2],"r");
    fprintf(stderr,"  Loading Document titles...");
    while(true) {
       int doc_id,wc;
@@ -238,7 +238,7 @@ int main(int argc, char**argv) {
       sort(final_ranklist.begin(),final_ranklist.end());
       int c= 0;
       for(int i = final_ranklist.size() - 1; i >=0 && c < MAX_TERMS ; i--,c++) {
-	 printf("%d. %s\n",c+1, get_doc_title(final_ranklist[i].second).c_str());
+	 printf("%d. %s\nhttp://en.wikipedia.org/wiki?curid=%d\n",c+1, get_doc_title(final_ranklist[i].second).c_str(),final_ranklist[i].second);
       }
    }
 }
