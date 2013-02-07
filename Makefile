@@ -3,8 +3,8 @@
 CCFLAGS = -O2 -std=c++11 -Wall
 all : xmlparse2 tokenizer mergeindex read_index
 
-read_index : read_index.o varbyteencoder.o
-	g++ $(CCFLAGS) read_index.o varbyteencoder.o -o read_index
+read_index : read_index.o varbyteencoder.o tokenize.o stem.o trie.o
+	g++ $(CCFLAGS) read_index.o varbyteencoder.o tokenize.o stem.o trie.o -o read_index
 read_index.o : read_index.cpp
 	g++ -c $(CCFLAGS) read_index.cpp
 
@@ -34,7 +34,7 @@ varbyteencoder.o : varbyteencoder.cpp
 
 
 clean:
-	rm -rf xmlparse2 tokenizer mergeindex *.o
+	rm -rf xmlparse2 tokenizer mergeindex read_index *.o
 	rm -rf 201001085_MiniProject*
 
 zip: *.cpp *.h *.c *.sh

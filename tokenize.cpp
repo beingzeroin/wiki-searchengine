@@ -53,6 +53,14 @@ void enable_stop_words() {
    }
 }
 
+char* reduce_token(char *s) {
+   s[stem(s,0,strlen(s)-1)+1]=0;
+   symbol_strip(s);
+   if(trie.has(s))
+      return 0;
+   return s;
+}
+
 char *tokenize(char *str,int &sz) {
    static char *saveptr;
    char *ret = strtok_r(str," \t\v\n:;|{}[]()<>`~!@#$%^&*-+=\\/\"_",&saveptr);

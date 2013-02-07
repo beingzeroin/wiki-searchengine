@@ -6,4 +6,5 @@
 char *tokenize(char *str,int&);
 void symbol_strip(char *s);
 void enable_stop_words();
+char* reduce_token(char *s);
 #endif
