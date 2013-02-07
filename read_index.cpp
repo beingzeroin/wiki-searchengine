@@ -11,7 +11,11 @@ using varbyteencoder::decode;
 using namespace std;
 char buf[100];
 vector<pair<string,off_t> > dict;
+vector<pair<int,pair<int,string> > > document_list;
+// docid,(wc,title)
 
+char progress[] = "|/-\\";
+int pcnt = 0;
 int main(int argc, char**argv) {
    if(argc!=2) {
       fprintf(stderr, "Usage : %s index_file_name\n",argv[0]);
@@ -32,7 +36,10 @@ int main(int argc, char**argv) {
       dict_seg_list.push_back(dic_seg_offset);
    }
    int read_size = 0;
+   fprintf(stderr,"  Loading TokenDictionary...");
    for(size_t d_seg = 0; d_seg < dict_seg_list.size(); d_seg++) {
+      pcnt = (pcnt+1)%4;
+      fprintf(stderr,"\r%c",progress[pcnt]);
       fseek(f,dict_seg_list[d_seg],SEEK_SET);
       fscanf(f,"%*s%*c");
       int c;
@@ -55,6 +62,32 @@ int main(int argc, char**argv) {
    }
    fprintf(stderr,"\r");
    printf("%ld Words in Dictionary!\n",dict.size());
+
+   // Load documents
+   FILE *doc_index = fopen("docindex.dat","r");
+   fprintf(stderr,"  Loading Document titles...");
+   while(true) {
+      int doc_id,wc;
+      char buf[1000];
+      if(fread(&doc_id, sizeof(int), 1, doc_index)==0)
+	 break;
+      fread(&wc, sizeof(int), 1, doc_index);
+      int p = 0;
+      while(true) {
+	 buf[p] = fgetc(doc_index);
+	 if(buf[p]==0)
+	    break;
+	 p++;
+      }
+      document_list.push_back(make_pair(doc_id,make_pair(wc,string(buf))));
+      if(document_list.size()%1000000==0) {
+	 pcnt = (pcnt+1)%4;
+	 fprintf(stderr,"\r%c",progress[pcnt]);
+      }
+   }
+   fclose(doc_index);
+   fprintf(stderr,"\r");
+   printf("%ld Documents in index\n",document_list.size());
 
 
 
