@@ -95,12 +95,14 @@ bool read_val() {
    return true;
 }
 //id expected to have 3-bit data of title/category/outlink
-void add_tokens(char *inp,int id) {
+int add_tokens(char *inp,int id) {
+   int wc = 0;
    int sz;
    char *s = tokenize(inp,sz);
    while(s) {
       if(*s)
       {
+	 wc++;
 	 //dict2[string(s)]++;
 	 int tok_id = dict->el(s);
 	 if(tok_id>no_words) {
@@ -139,13 +141,14 @@ void add_tokens(char *inp,int id) {
 	 //printf("%d:%s:%s\n",id,DOCTYPE[id&7],s);
       }
       s = tokenize(NULL,sz);
-      
    }
+   return wc;
 }
 regex_t infobox,outlink;
 regmatch_t pmatch[4];
-void handle_text(char* buf, int id) {
+int handle_text(char* buf, int id) {
    // handle category and outlinks
+   int wc = 0; // word count;
    char* s = buf;
    int l = 0;
    int categ = 0;
@@ -154,7 +157,7 @@ void handle_text(char* buf, int id) {
 	 l++;
 	 if(l==1 && buf<s) {
 	    *s='\0';
-	    add_tokens(buf,id);
+	    wc += add_tokens(buf,id);
 	    while(buf<s)
 	       *(buf++)=' ';
 	    *buf=' ';
@@ -171,10 +174,10 @@ void handle_text(char* buf, int id) {
 	 if(l==0) {
 	    *s='\0';
 	    if(categ) {
-	       add_tokens(buf,CATEG(id));
+	       wc += add_tokens(buf,CATEG(id));
 	    categ=0;
 	    } else {
-	       add_tokens(buf,OUTLINK(id));
+	       wc += add_tokens(buf,OUTLINK(id));
 	    }
 	    while(buf<s)
 	       *(buf++)=' ';
@@ -183,13 +186,15 @@ void handle_text(char* buf, int id) {
       }
       s++;
    }
-   add_tokens(buf,id);
+   wc += add_tokens(buf,id);
    while(buf<s)
       *(buf++)=' ';
+   return wc;
 }
-void handle_infobox(char* buf,int id) {
+int handle_infobox(char* buf,int id) {
    size_t s = 0;
    int status = regexec(&infobox,buf+s,1,pmatch,0);
+   int wc = 0 ; // word count
    if(!status){
       s+=pmatch[0].rm_so;
       int c = 2;
@@ -213,13 +218,27 @@ void handle_infobox(char* buf,int id) {
       *(--p)=' ';
       *(--p)='\0';
       //hadndle text wipes it clean
-      handle_text(buf+s,id);
+      wc += handle_text(buf+s,id);
       *p = ' ';
    }
+   return wc;
 }
+FILE *doc_index;
 void init() {
    enable_stop_words();
    regcomp(&infobox,"{{Infobox",0);
+   doc_index = fopen("docindex.dat","w");
+}
+void add_doc_stat(int docid, int wc, string title) {
+   //printf("%d : (%d) : %s\n",docid, wc, title.c_str());
+   const char *buf = title.c_str();
+   int title_l = strlen(buf)+1;
+   fwrite(&docid,sizeof(docid),1,doc_index);
+   fwrite(&wc, sizeof(wc),1,doc_index);
+   fwrite(buf, 1, title_l,doc_index);
+}
+void flush_doc_stat() {
+   fclose(doc_index);
 }
 int main() {
    init();
@@ -233,12 +252,15 @@ int main() {
       int id;
       sscanf(buf,"%d",&id);
 
+      int wc = 0;
       read_val();
-      add_tokens(buf,TITLE(id*8));
+      string title = string(buf);
+      wc += add_tokens(buf,TITLE(id*8));
 
       read_val();
-      handle_infobox(buf,INFOBOX(id*8));
-      handle_text(buf,id*8);
+      wc += handle_infobox(buf,INFOBOX(id*8));
+      wc += handle_text(buf,id*8);
+      add_doc_stat(id, wc, title);
       cnt++;
       if(cnt%CHUNK_FILE_LIM==0) {
 	 char fname[100];
@@ -258,4 +280,5 @@ int main() {
       dump_all(fname);
    }
    fprintf(stderr,"\n");
+   flush_doc_stat();
 }
