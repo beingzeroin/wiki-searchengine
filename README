@@ -2,7 +2,19 @@ Search Engine - Miniproject
 
 Author : Anish Shankar <rndanish@gmail.com>
 Roll No: 201001085
-last source hash : e2ce1d442a34
+last source hash : 32c710a5e493aa
+
+Quick Start:
+Indexing:
+  ./run.sh  input.xml
+  This does the indexing and finally produces two files:
+  searchindex.dat : The main index
+  docindex.dat    : This index contains document ids mapped to titles for displaying output
+
+Searching:
+  ./read_index searchindex.dat docindex.dat
+  (Enter Queries)
+
 
 
 Index Statistics:
