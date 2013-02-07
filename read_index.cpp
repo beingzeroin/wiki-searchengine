@@ -6,11 +6,13 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <unordered_map>
 #include "varbyteencoder.h"
 #include "tokenize.h"
 using varbyteencoder::decode;
 using namespace std;
 
+#define MAX_TERMS 15
 #define INFOBOX(x) ((x&4)>0)
 #define PLAIN(x) ((x&3)==0)
 #define OUTLINK(x) ((x&3)==1)
@@ -30,12 +32,14 @@ FILE *f;
 int get_doc_wc(int doc_id) {
    pair<int,pair<int,string> > p;
    p.first = doc_id;
-   return lower_bound(document_list.begin(),document_list.end(), p)->second.first;
+   auto it = lower_bound(document_list.begin(),document_list.end(), p);
+   return it->second.first;
 }
 string get_doc_title(int doc_id) {
    pair<int,pair<int,string> > p;
    p.first = doc_id;
-   return lower_bound(document_list.begin(),document_list.end(), p)->second.second;
+   auto it = lower_bound(document_list.begin(),document_list.end(), p);
+   return it->second.second;
 }
 
 // filter just checks and of last 3 bits matches or not
@@ -85,7 +89,58 @@ vector<pair<int,double> > process_token(char *token,int filter) {
    }
    return ret;
 }
-
+vector<pair<string,int> > process_input() {
+   char buf[10240];
+   char buf2[10240];
+   vector<pair<string,int> > ret;
+   if(scanf(" %[^\n]",buf)==EOF) {
+      ret.push_back(make_pair("EOF",-2));
+   }
+   int putp=0;
+   char *p = buf;
+   while(*p) {
+      if(*p==':') {
+	 buf2[putp++] = ' ';
+	 buf2[putp++] = *p;
+	 buf2[putp++] = ' ';
+      } else {
+	 buf2[putp++] = *p;
+      }
+      p++;
+   }
+   buf2[putp] = 0;
+   vector<string> toks;
+   for(char* tok = strtok(buf2," \t"); tok != NULL; tok = strtok(NULL," \t")) {
+      toks.push_back(string(tok));
+   }
+   int mode = -1;
+   for(size_t i = 0; i < toks.size(); i++) {
+      bool modifier = false;
+      if(i+1 < toks.size()) {
+	 if(toks[i+1] == ":") {
+	    modifier = true;
+	   if(toks[i] == "T")
+	      mode = 2;
+	   else if(toks[i] == "B")
+	      mode = 0;
+	   else if(toks[i] == "I")
+	      mode = 4;
+	   else if(toks[i] == "C")
+	      mode = 3;
+	   else if(toks[i] == "O")
+	      mode = 1;
+	   else {
+	      modifier = false;
+	   }
+	 }
+      }
+      if(modifier)
+	 i++;
+      else
+	 ret.push_back(make_pair(toks[i],mode));
+   }
+   return ret;
+}
 int main(int argc, char**argv) {
    if(argc!=2) {
       fprintf(stderr, "Usage : %s index_file_name\n",argv[0]);
@@ -156,6 +211,7 @@ int main(int argc, char**argv) {
       }
    }
    fclose(doc_index);
+   sort(document_list.begin(),document_list.end());
    doc_cnt = document_list.size();
    fprintf(stderr,"\r");
    printf("%ld Documents in index\n",document_list.size());
@@ -163,16 +219,26 @@ int main(int argc, char**argv) {
 
 
    printf("Enter words to query :\n");
-   while(scanf("%s",buf)!=EOF) {
-      auto tfidf = process_token(buf,-1);
-      vector<pair<double,int> > v;
-      for(auto it: tfidf) {
-	 v.push_back(make_pair(it.second,it.first));
+   while(true) {
+      auto tokens = process_input();
+      if(tokens.size()>0 && tokens[0].second == -2)
+	 break;
+      unordered_map<int,double> ranklist;
+      for(auto token : tokens) {
+	 char buf3[100];
+	 strcpy(buf3,token.first.c_str());
+	 auto tfidf = process_token(buf3,token.second);
+	 vector<pair<double,int> > v;
+	 for(auto it: tfidf)
+	    ranklist[it.first] += it.second;
       }
-      sort(v.begin(),v.end());
-      reverse(v.begin(),v.end());
-      for(auto it : v) {
-	 printf("%d : %lf : %s\n", it.second, it.first, get_doc_title(it.second).c_str());
+      vector<pair<double,int> > final_ranklist;
+      for (auto it : ranklist)
+	 final_ranklist.push_back(make_pair(it.second,it.first));
+      sort(final_ranklist.begin(),final_ranklist.end());
+      int c= 0;
+      for(int i = final_ranklist.size() - 1; i >=0 && c < MAX_TERMS ; i--,c++) {
+	 printf("%d. %s\n",c+1, get_doc_title(final_ranklist[i].second).c_str());
       }
    }
 }
