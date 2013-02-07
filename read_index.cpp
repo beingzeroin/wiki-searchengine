@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cmath>
 #include <cstring>
+#include <ctime>
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -141,6 +142,10 @@ vector<pair<string,int> > process_input() {
    }
    return ret;
 }
+double get_time(const timespec &a){
+   return a.tv_sec+double(a.tv_nsec)/1e9;
+}
+
 int main(int argc, char**argv) {
    if(argc!=3) {
       fprintf(stderr, "Usage : %s index_file_name docindex.dat\n",argv[0]);
@@ -221,6 +226,8 @@ int main(int argc, char**argv) {
    printf("Enter words to query :\n");
    while(true) {
       auto tokens = process_input();
+      timespec start_time,end_time;
+      clock_gettime(CLOCK_MONOTONIC,&start_time);
       if(tokens.size()>0 && tokens[0].second == -2)
 	 break;
       unordered_map<int,double> ranklist;
@@ -237,8 +244,10 @@ int main(int argc, char**argv) {
 	 final_ranklist.push_back(make_pair(it.second,it.first));
       sort(final_ranklist.begin(),final_ranklist.end());
       int c= 0;
+      clock_gettime(CLOCK_MONOTONIC,&end_time);
       for(int i = final_ranklist.size() - 1; i >=0 && c < MAX_TERMS ; i--,c++) {
 	 printf("%d. %s\nhttp://en.wikipedia.org/wiki?curid=%d\n",c+1, get_doc_title(final_ranklist[i].second).c_str(),final_ranklist[i].second);
       }
+      printf("Query took %lf seconds\n",get_time(end_time) - get_time(start_time));
    }
 }

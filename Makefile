@@ -4,7 +4,7 @@ CCFLAGS = -O2 -std=c++11 -Wall
 all : xmlparse2 tokenizer mergeindex read_index
 
 read_index : read_index.o varbyteencoder.o tokenize.o stem.o trie.o
-	g++ $(CCFLAGS) read_index.o varbyteencoder.o tokenize.o stem.o trie.o -o read_index
+	g++ $(CCFLAGS)  -Wl,--no-as-needed -lrt read_index.o varbyteencoder.o tokenize.o stem.o trie.o -o read_index
 read_index.o : read_index.cpp
 	g++ -c $(CCFLAGS) read_index.cpp
 
