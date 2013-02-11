@@ -20,6 +20,7 @@ using namespace std;
 #define TITLE(x) ((x&3)==2)
 #define CATEG(x) ((x&3)==3)
 
+#define MULTI_MATCH_BOOST 5
 #define MIN_WORD_COUNT 0 // To prevent short document normalization issues
 
 char buf[100];
@@ -237,7 +238,7 @@ int main(int argc, char**argv) {
 	 auto tfidf = process_token(buf3,token.second);
 	 vector<pair<double,int> > v;
 	 for(auto it: tfidf)
-	    ranklist[it.first] += 1+it.second; // constant extra score of 1 for boosting multiple term match
+	    ranklist[it.first] += MULTI_MATCH_BOOST+it.second; // constant extra score of 1 for boosting multiple term match
       }
       vector<pair<double,int> > final_ranklist;
       for (auto it : ranklist)
@@ -246,7 +247,8 @@ int main(int argc, char**argv) {
       int c= 0;
       clock_gettime(CLOCK_MONOTONIC,&end_time);
       for(int i = final_ranklist.size() - 1; i >=0 && c < MAX_TERMS ; i--,c++) {
-	 printf("%d. %s\nhttp://en.wikipedia.org/wiki?curid=%d\n",c+1, get_doc_title(final_ranklist[i].second).c_str(),final_ranklist[i].second);
+	 printf("%d. %s\nhttp://en.wikipedia.org/wiki?curid=%d\n",c+1,get_doc_title(final_ranklist[i].second).c_str(),final_ranklist[i].second);
+	 //printf("%d. %.4lf  %s\nhttp://en.wikipedia.org/wiki?curid=%d\n",c+1,final_ranklist[i].first,get_doc_title(final_ranklist[i].second).c_str(),final_ranklist[i].second);
       }
       printf("Query took %lf seconds\n",get_time(end_time) - get_time(start_time));
    }
