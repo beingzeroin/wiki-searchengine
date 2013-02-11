@@ -20,6 +20,8 @@ using namespace std;
 #define TITLE(x) ((x&3)==2)
 #define CATEG(x) ((x&3)==3)
 
+#define MIN_WORD_COUNT 50 // To prevent short document normalization issues
+
 char buf[100];
 vector<pair<string,off_t> > dict;
 vector<pair<int,pair<int,string> > > document_list;
@@ -34,7 +36,7 @@ int get_doc_wc(int doc_id) {
    pair<int,pair<int,string> > p;
    p.first = doc_id;
    auto it = lower_bound(document_list.begin(),document_list.end(), p);
-   return it->second.first;
+   return max(50,it->second.first);
 }
 string get_doc_title(int doc_id) {
    pair<int,pair<int,string> > p;
