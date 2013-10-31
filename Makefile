@@ -1,6 +1,6 @@
 # Makfile by Anish Shankar <rndanish@gmail.com
 # For IRE MiniProject , Roll No: 201001085
-CCFLAGS = -O2 -std=c++11 -Wall
+CCFLAGS = -O3 -std=c++11 -Wall
 all : xmlparse2 tokenizer mergeindex read_index
 
 read_index : read_index.o varbyteencoder.o tokenize.o stem.o trie.o

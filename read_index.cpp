@@ -247,7 +247,8 @@ int main(int argc, char**argv) {
       int c= 0;
       clock_gettime(CLOCK_MONOTONIC,&end_time);
       for(int i = final_ranklist.size() - 1; i >=0 && c < MAX_TERMS ; i--,c++) {
-	 printf("%d. %s\nhttp://en.wikipedia.org/wiki?curid=%d\n",c+1,get_doc_title(final_ranklist[i].second).c_str(),final_ranklist[i].second);
+	 printf("%d. %s\n",c+1,get_doc_title(final_ranklist[i].second).c_str());
+	 //printf("%d. %s\nhttp://en.wikipedia.org/wiki?curid=%d\n",c+1,get_doc_title(final_ranklist[i].second).c_str(),final_ranklist[i].second);
 	 //printf("%d. %.4lf  %s\nhttp://en.wikipedia.org/wiki?curid=%d\n",c+1,final_ranklist[i].first,get_doc_title(final_ranklist[i].second).c_str(),final_ranklist[i].second);
       }
       printf("Query took %lf seconds\n",get_time(end_time) - get_time(start_time));

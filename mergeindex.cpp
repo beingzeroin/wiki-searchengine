@@ -14,7 +14,7 @@ using varbyteencoder::encode;
 using varbyteencoder::decode;
 using namespace std;
 #define WRITE_BUF_SIZE 64*1024*1024
-#define READ_BUF_SIZE 5*1024*1024
+#define READ_BUF_SIZE 1*1024*1024
 #define DICT_SEGMENT_SIZE 32*1024*1024
 
 vector<pair<string,off_t> > dictionary;
